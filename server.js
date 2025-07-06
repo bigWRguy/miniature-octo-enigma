@@ -124,11 +124,12 @@ app.get('/refresh-data', async (req, res) => {
     if (isRefreshing) {
         return res.status(429).send("A cache refresh is already in progress. Please try again in a moment.");
     }
-    const freshData = await fetchFromGoogleAndCache(true); // true for manual refresh
-    if (freshData) {
-        res.status(200).send(`Cache refreshed successfully at ${new Date().toLocaleTimeString()}! New data loaded. Your website will now get this new data.`);
+    const result = await fetchFromGoogleAndCache(true); // true for manual refresh
+    if (result.success) {
+        res.status(200).send(`<h1>Success!</h1><p>Cache refreshed successfully at ${new Date().toLocaleTimeString()}!</p>`);
     } else {
-        res.status(500).send("Failed to refresh cache. Check server logs on Glitch for details (e.g., Google Sheets API errors).");
+        // THIS IS THE NEW DEBUGGING PART
+        res.status(result.status || 500).send(`<h1>DEBUG LOG - FETCH FAILED</h1><p>The server tried to get new data from Google but failed. Here is the exact error message:</p><hr><pre style="white-space: pre-wrap; word-wrap: break-word; background: #eee; padding: 10px; border: 1px solid #ccc;">${result.error}</pre>`);
     }
 });
 
