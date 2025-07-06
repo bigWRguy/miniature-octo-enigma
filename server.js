@@ -70,13 +70,15 @@ async function writeDataToCache(data) {
 async function fetchFromGoogleAndCache(isManualRefresh = false) {
     if (isRefreshing && !isManualRefresh) {
         console.log(`(${new Date().toISOString()}) Refresh already in progress, skipping automatic fetch.`);
-        return memoryCache;
+        return { success: true, data: memoryCache }; // Return success with existing data
     }
     isRefreshing = true;
 
     if (!API_KEY || !SPREADSHEET_ID) {
-        console.error("Cannot fetch: API_KEY or SPREADSHEET_ID not set.");
-        isRefreshing = false; return null;
+        const errorMsg = "Cannot fetch: API_KEY or SPREADSHEET_ID not set.";
+        console.error(errorMsg);
+        isRefreshing = false;
+        return { success: false, error: errorMsg };
     }
     console.log(`(${new Date().toISOString()}) Fetching fresh data from Google Sheets...`);
     try {
@@ -85,14 +87,18 @@ async function fetchFromGoogleAndCache(isManualRefresh = false) {
         if (!sheetsResponse.ok) {
             const errorText = await sheetsResponse.text();
             console.error(`(${new Date().toISOString()}) Google Sheets API Error (${sheetsResponse.status}):`, errorText);
-            isRefreshing = false; return null;
+            isRefreshing = false;
+            return { success: false, error: errorText, status: sheetsResponse.status };
         }
         const newData = await sheetsResponse.json();
         await writeDataToCache(newData);
-        isRefreshing = false; return newData;
+        isRefreshing = false;
+        return { success: true, data: newData };
     } catch (error) {
-        console.error(`(${new Date().toISOString()}) Error fetching/processing data from Google:`, error);
-        isRefreshing = false; return null;
+        const errorMsg = `Error fetching/processing data from Google: ${error.message}`;
+        console.error(`(${new Date().toISOString()})`, errorMsg);
+        isRefreshing = false;
+        return { success: false, error: errorMsg };
     }
 }
 
