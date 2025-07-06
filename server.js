@@ -15,6 +15,11 @@ const API_KEY = process.env.GOOGLE_SHEETS_API_KEY;
 const SPREADSHEET_ID = process.env.GOOGLE_SPREADSHEET_ID;
 const SHEET_NAME = 'All';
 
+console.log('--- DIAGNOSTIC CHECK ---');
+console.log('API Key Loaded:', !!process.env.GOOGLE_SHEETS_API_KEY);
+console.log('Spreadsheet ID Loaded:', !!process.env.GOOGLE_SPREADSHEET_ID);
+console.log('--- END DIAGNOSTIC ---');
+
 // --- State Variables for Caching ---
 let memoryCache = null;
 let memoryCacheTimestamp = 0;
